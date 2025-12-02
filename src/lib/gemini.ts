@@ -75,12 +75,23 @@ IMPORTANT: Return ONLY valid JSON. No markdown, no explanation, just the JSON ob
   // Add files as inline data
   for (const file of files) {
     if (file.type.startsWith("image/") || file.type === "application/pdf") {
-      parts.push({
-        inline_data: {
-          mime_type: file.type,
-          data: file.base64,
-        },
-      });
+      // Clean the base64 string - remove any whitespace or newlines
+      let cleanBase64 = file.base64.replace(/\s/g, '');
+      
+      // Remove data URL prefix if it somehow got included
+      if (cleanBase64.includes(',')) {
+        cleanBase64 = cleanBase64.split(',')[1] || cleanBase64;
+      }
+      
+      // Validate base64 format
+      if (cleanBase64 && cleanBase64.length > 0) {
+        parts.push({
+          inline_data: {
+            mime_type: file.type,
+            data: cleanBase64,
+          },
+        });
+      }
     }
   }
 
@@ -103,8 +114,17 @@ IMPORTANT: Return ONLY valid JSON. No markdown, no explanation, just the JSON ob
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Gemini API error: ${error}`);
+    const errorText = await response.text();
+    console.error("Gemini API error response:", errorText);
+    
+    // Try to parse and give a friendly error
+    try {
+      const errorJson = JSON.parse(errorText);
+      const message = errorJson.error?.message || "Unknown error";
+      throw new Error(`AI generation failed: ${message}`);
+    } catch {
+      throw new Error("AI generation failed. Please try with a smaller image or different file.");
+    }
   }
 
   const data = await response.json();
