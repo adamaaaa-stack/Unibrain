@@ -235,30 +235,6 @@ export default function CreatePage() {
             </div>
           )}
 
-          {/* Trial banner */}
-          {usage?.is_trial && (
-            <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 flex items-center justify-center">
-                    <span className="text-white text-lg">🎉</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">Pro Trial Active</p>
-                    <p className="text-slate-400 text-sm">
-                      {usage.trial_days_left} day{usage.trial_days_left !== 1 ? 's' : ''} left • Unlimited courses
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href="/pricing"
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-500 text-white text-sm font-medium hover:from-cyan-400 hover:to-violet-400 transition-all"
-                >
-                  Upgrade Now
-                </Link>
-              </div>
-            </div>
-          )}
 
           {/* Usage indicator */}
           {usage && !isAtLimit && !usage.is_trial && usage.courses_limit !== -1 && (

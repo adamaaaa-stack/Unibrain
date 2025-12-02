@@ -59,15 +59,11 @@ export default function PricingPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-500/30 mb-6">
-            <span className="text-lg">🎉</span>
-            <span className="text-cyan-300 font-medium">7-Day Free Trial on Pro</span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Simple, Transparent Pricing
           </h1>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Start with a 7-day free Pro trial. No credit card required.
+            Choose the plan that works best for you.
           </p>
         </div>
 
@@ -147,7 +143,7 @@ export default function PricingPage() {
           <div className="relative p-8 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30">
             {/* Popular badge */}
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-white text-sm font-medium">
-              7-Day Free Trial
+              Most Popular
             </div>
 
             <div className="mb-6">
