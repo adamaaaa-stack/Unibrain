@@ -10,8 +10,6 @@ UniBrain is an AI-powered study platform that transforms your notes, articles, P
 [![Stripe](https://img.shields.io/badge/Stripe-Payments-purple?logo=stripe)](https://stripe.com/)
 [![Gemini](https://img.shields.io/badge/Gemini-AI-orange?logo=google)](https://ai.google.dev/)
 
-![UniBrain Demo](https://via.placeholder.com/800x400/0f172a/06b6d4?text=UniBrain+Demo)
-
 ---
 
 ## ✨ Features
