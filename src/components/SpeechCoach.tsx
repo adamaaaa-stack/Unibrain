@@ -2,6 +2,34 @@
 
 import { useState, useEffect } from "react";
 
+// Type declarations for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+}
+
+interface SpeechRecognitionInstance extends EventTarget {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+  }
+}
+
 interface SpeechCoachProps {
   courseTitle: string;
   flashcards: { q: string; a: string }[];
@@ -27,22 +55,22 @@ export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProp
   useEffect(() => {
     // Check if speech recognition is supported
     if (typeof window !== "undefined") {
-      const SpeechRecognition = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof window.SpeechRecognition }).webkitSpeechRecognition;
-      if (!SpeechRecognition) {
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognitionAPI) {
         setIsSupported(false);
       }
     }
   }, []);
 
   const startListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof window.SpeechRecognition }).webkitSpeechRecognition;
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     
-    if (!SpeechRecognition) {
+    if (!SpeechRecognitionAPI) {
       alert("Speech recognition is not supported in your browser. Try Chrome or Edge.");
       return;
     }
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognitionAPI();
     recognition.lang = "en-US";
     recognition.interimResults = false;
     recognition.continuous = false;
