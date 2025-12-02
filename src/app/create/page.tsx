@@ -94,11 +94,17 @@ export default function CreatePage() {
   };
 
   const handleSave = async () => {
-    if (!user || !generatedCourse) return;
+    if (!user || !generatedCourse) {
+      setError("Please log in and generate a course first");
+      return;
+    }
 
     setSaving(true);
+    setError("");
 
     try {
+      console.log("Saving course for user:", user.id);
+      
       const { data, error } = await supabase
         .from("courses")
         .insert({
@@ -116,11 +122,22 @@ export default function CreatePage() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw new Error(error.message || "Failed to save to database");
+      }
 
+      if (!data) {
+        throw new Error("No data returned from database");
+      }
+
+      console.log("Course saved:", data.id);
       router.push(`/course/${data.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save course");
+      console.error("Save error:", err);
+      const message = err instanceof Error ? err.message : "Failed to save course";
+      setError(message);
+      alert(`Error saving course: ${message}`);
     } finally {
       setSaving(false);
     }
@@ -357,6 +374,13 @@ export default function CreatePage() {
         </>
       ) : (
         <>
+          {/* Error in preview */}
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400">
+              {error}
+            </div>
+          )}
+
           {/* Preview Header */}
           <div className="flex items-center justify-between mb-8">
             <button
