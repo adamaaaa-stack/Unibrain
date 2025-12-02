@@ -18,6 +18,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 });
     }
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      return NextResponse.json({
+        courses_this_month: 0,
+        plan: "free",
+        courses_limit: 3,
+        can_create_course: true,
+        is_trial: false,
+        trial_days_left: 0,
+      });
+    }
+
     // Default values
     let plan: PlanType = "free";
     let isTrial = false;
