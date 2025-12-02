@@ -15,8 +15,9 @@ import StudyTips from "@/components/StudyTips";
 import MatchGame from "@/components/MatchGame";
 import WriteMode from "@/components/WriteMode";
 import LearnMode from "@/components/LearnMode";
+import AITutor from "@/components/AITutor";
 
-type TabType = "summary" | "guide" | "terms" | "flashcards" | "learn" | "write" | "match" | "quiz" | "practice" | "tips";
+type TabType = "summary" | "guide" | "terms" | "flashcards" | "learn" | "write" | "match" | "quiz" | "practice" | "tips" | "tutor";
 
 export default function CoursePage() {
   const { user, loading: authLoading } = useAuth();
@@ -215,6 +216,16 @@ export default function CoursePage() {
       ),
       count: course.study_tips?.length,
     },
+    {
+      id: "tutor",
+      label: "Tutor",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+      ),
+      badge: "AI",
+    },
   ];
 
   return (
@@ -354,6 +365,15 @@ export default function CoursePage() {
 
         {activeTab === "tips" && (
           <StudyTips tips={course.study_tips || []} />
+        )}
+
+        {activeTab === "tutor" && (
+          <AITutor
+            courseTitle={course.title}
+            courseSummary={course.summary}
+            flashcards={course.flashcards || []}
+            keyTerms={course.key_terms || []}
+          />
         )}
       </div>
 
