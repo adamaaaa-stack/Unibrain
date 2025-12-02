@@ -19,8 +19,9 @@ import AITutor from "@/components/AITutor";
 import SpeechCoach from "@/components/SpeechCoach";
 import TopicSpeaker from "@/components/TopicSpeaker";
 import SpeechRubric from "@/components/SpeechRubric";
+import LanguageSpeech from "@/components/LanguageSpeech";
 
-type TabType = "summary" | "guide" | "terms" | "flashcards" | "learn" | "write" | "match" | "quiz" | "practice" | "tips" | "tutor" | "speak" | "explain" | "present";
+type TabType = "summary" | "guide" | "terms" | "flashcards" | "learn" | "write" | "match" | "quiz" | "practice" | "tips" | "tutor" | "speak" | "explain" | "present" | "language";
 
 export default function CoursePage() {
   const { user, loading: authLoading } = useAuth();
@@ -259,6 +260,16 @@ export default function CoursePage() {
       ),
       badge: "📊",
     },
+    {
+      id: "language",
+      label: "Language",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+        </svg>
+      ),
+      badge: "🌍",
+    },
   ];
 
   return (
@@ -429,6 +440,13 @@ export default function CoursePage() {
           <SpeechRubric
             courseTitle={course.title}
             summary={course.summary}
+          />
+        )}
+
+        {activeTab === "language" && (
+          <LanguageSpeech
+            flashcards={course.flashcards || []}
+            keyTerms={course.key_terms || []}
           />
         )}
       </div>
