@@ -62,7 +62,10 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   if (!userId) return;
 
   // Get subscription details
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as unknown as {
+    current_period_start: number;
+    current_period_end: number;
+  };
 
   await supabaseAdmin.from("subscriptions").upsert({
     user_id: userId,
@@ -77,6 +80,10 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
+  const sub_data = subscription as unknown as {
+    current_period_start: number;
+    current_period_end: number;
+  };
 
   // Find user by customer ID
   const { data: sub } = await supabaseAdmin
@@ -93,8 +100,8 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
 
   await supabaseAdmin.from("subscriptions").update({
     status,
-    current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-    current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+    current_period_start: new Date(sub_data.current_period_start * 1000).toISOString(),
+    current_period_end: new Date(sub_data.current_period_end * 1000).toISOString(),
   }).eq("user_id", sub.user_id);
 }
 
