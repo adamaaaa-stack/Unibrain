@@ -16,8 +16,9 @@ import MatchGame from "@/components/MatchGame";
 import WriteMode from "@/components/WriteMode";
 import LearnMode from "@/components/LearnMode";
 import AITutor from "@/components/AITutor";
+import SpeechCoach from "@/components/SpeechCoach";
 
-type TabType = "summary" | "guide" | "terms" | "flashcards" | "learn" | "write" | "match" | "quiz" | "practice" | "tips" | "tutor";
+type TabType = "summary" | "guide" | "terms" | "flashcards" | "learn" | "write" | "match" | "quiz" | "practice" | "tips" | "tutor" | "speak";
 
 export default function CoursePage() {
   const { user, loading: authLoading } = useAuth();
@@ -226,6 +227,16 @@ export default function CoursePage() {
       ),
       badge: "AI",
     },
+    {
+      id: "speak",
+      label: "Speak",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+        </svg>
+      ),
+      badge: "🎤",
+    },
   ];
 
   return (
@@ -373,6 +384,13 @@ export default function CoursePage() {
             courseSummary={course.summary}
             flashcards={course.flashcards || []}
             keyTerms={course.key_terms || []}
+          />
+        )}
+
+        {activeTab === "speak" && (
+          <SpeechCoach
+            courseTitle={course.title}
+            flashcards={course.flashcards || []}
           />
         )}
       </div>
