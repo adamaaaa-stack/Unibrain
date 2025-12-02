@@ -62,7 +62,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   if (!userId) return;
 
   // Get subscription details
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
 
   await supabaseAdmin.from("subscriptions").upsert({
     user_id: userId,
