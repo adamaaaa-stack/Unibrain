@@ -42,7 +42,7 @@ interface FeedbackResult {
   pronunciationTips: string[];
 }
 
-export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProps) {
+export default function SpeechCoach({ flashcards }: SpeechCoachProps) {
   const [isListening, setIsListening] = useState(false);
   const [userText, setUserText] = useState("");
   const [currentCard, setCurrentCard] = useState(0);
@@ -51,6 +51,8 @@ export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProp
   const [isSupported, setIsSupported] = useState(true);
   const [streak, setStreak] = useState(0);
   const [totalScore, setTotalScore] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [answeredCount, setAnsweredCount] = useState(0);
 
   useEffect(() => {
     // Check if speech recognition is supported
@@ -125,14 +127,15 @@ export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProp
 
       const data = await response.json();
       setFeedback(data);
+      setAnsweredCount(c => c + 1);
       
       // Update score and streak
       if (data.accuracy >= 80) {
         setStreak(s => s + 1);
-        setTotalScore(s => s + data.accuracy);
       } else {
         setStreak(0);
       }
+      setTotalScore(s => s + data.accuracy);
     } catch (error) {
       console.error("Evaluation error:", error);
       setFeedback({
@@ -151,6 +154,7 @@ export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProp
       setCurrentCard(c => c + 1);
       setFeedback(null);
       setUserText("");
+      setShowHint(false);
     }
   };
 
@@ -159,6 +163,7 @@ export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProp
       setCurrentCard(c => c - 1);
       setFeedback(null);
       setUserText("");
+      setShowHint(false);
     }
   };
 
@@ -203,7 +208,7 @@ export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProp
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-emerald-400">
-              {totalScore > 0 ? Math.round(totalScore / Math.max(currentCard, 1)) : 0}%
+              {answeredCount > 0 ? Math.round(totalScore / answeredCount) : 0}%
             </div>
             <div className="text-xs text-slate-500">Avg Score</div>
           </div>
@@ -213,9 +218,34 @@ export default function SpeechCoach({ courseTitle, flashcards }: SpeechCoachProp
       {/* Question Card */}
       <div className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-slate-700/50">
         <p className="text-sm text-cyan-400 mb-2">Question:</p>
-        <h3 className="text-xl text-white font-medium">{card.q}</h3>
-        <p className="text-sm text-slate-500 mt-4">Speak the answer aloud:</p>
-        <p className="text-slate-400 mt-1 italic">&quot;{card.a}&quot;</p>
+        <h3 className="text-2xl text-white font-medium mb-4">{card.q}</h3>
+        
+        {/* Hint Section - only show if no feedback yet */}
+        {!feedback && (
+          <div className="mt-4 pt-4 border-t border-slate-700/50">
+            {showHint ? (
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                <p className="text-sm text-amber-400 mb-1">💡 Hint:</p>
+                <p className="text-slate-300 text-sm">
+                  {card.a.length > 20 
+                    ? `Starts with "${card.a.substring(0, Math.ceil(card.a.length * 0.3))}..."`
+                    : `First letter: "${card.a[0]}"`
+                  }
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowHint(true)}
+                className="text-sm text-slate-500 hover:text-amber-400 transition-colors flex items-center gap-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                Need a hint?
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Microphone Button */}
