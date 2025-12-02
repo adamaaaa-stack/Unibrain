@@ -1,9 +1,11 @@
 import Stripe from "stripe";
 
-// Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-11-17.clover",
-});
+// Server-side Stripe instance - only create if key exists
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+
+export const stripe = stripeKey 
+  ? new Stripe(stripeKey, { apiVersion: "2025-11-17.clover" })
+  : null as unknown as Stripe;
 
 // Price IDs - you'll set these after creating products in Stripe
 export const PRICES = {
