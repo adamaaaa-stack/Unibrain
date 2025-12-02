@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function getSupabaseAdmin(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,6 +58,9 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) return;
+
   const userId = session.metadata?.userId;
   const subscriptionId = session.subscription as string;
   const customerId = session.customer as string;
@@ -79,6 +85,9 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) return;
+
   const customerId = subscription.customer as string;
   const sub_data = subscription as unknown as {
     current_period_start: number;
@@ -106,6 +115,9 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) return;
+
   const customerId = subscription.customer as string;
 
   // Find user by customer ID and downgrade to free
@@ -117,6 +129,9 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) return;
+
   const customerId = invoice.customer as string;
 
   await supabaseAdmin.from("subscriptions").update({

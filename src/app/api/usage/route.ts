@@ -3,12 +3,27 @@ import { createClient } from "@supabase/supabase-js";
 import { PLAN_LIMITS } from "@/lib/stripe";
 import { PlanType, UsageStats } from "@/lib/types";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!url || !key) {
+    return null;
+  }
+  
+  return createClient(url, key);
+}
 
 const TRIAL_DAYS = 7;
+
+const defaultUsage = {
+  courses_this_month: 0,
+  plan: "free" as PlanType,
+  courses_limit: 3,
+  can_create_course: true,
+  is_trial: false,
+  trial_days_left: 0,
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,14 +36,14 @@ export async function GET(request: NextRequest) {
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(userId)) {
-      return NextResponse.json({
-        courses_this_month: 0,
-        plan: "free",
-        courses_limit: 3,
-        can_create_course: true,
-        is_trial: false,
-        trial_days_left: 0,
-      });
+      return NextResponse.json(defaultUsage);
+    }
+
+    // Get Supabase client
+    const supabaseAdmin = getSupabaseAdmin();
+    if (!supabaseAdmin) {
+      console.error("Supabase not configured");
+      return NextResponse.json(defaultUsage);
     }
 
     // Default values
@@ -117,13 +132,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(usage);
   } catch (error) {
     console.error("Usage check error:", error);
-    return NextResponse.json({
-      courses_this_month: 0,
-      plan: "free",
-      courses_limit: 3,
-      can_create_course: true,
-      is_trial: false,
-      trial_days_left: 0,
-    });
+    return NextResponse.json(defaultUsage);
   }
 }
